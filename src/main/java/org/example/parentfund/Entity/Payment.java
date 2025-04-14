@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payment")
+@Table(name = "payments")
 @Data
 @Builder
 @AllArgsConstructor
@@ -32,15 +32,23 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "original_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal originalAmount;
+
+    @Column(name = "adjusted_amount", precision = 19, scale = 2)
     private BigDecimal adjustedAmount;
+
+    @Column(name = "fee_rate")
     private Double feeRate;
+
+    @Column(name = "payment_description")
     private String paymentDescription;
+
+    @Column(name = "payment_date", nullable = false)
     private LocalDateTime paymentDate;
 
-
     @Enumerated(EnumType.STRING)
-    @Column(name = "paymentStatus")
+    @Column(name = "payment_status", nullable = false)
     private PaymentStatus paymentStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)

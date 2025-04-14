@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "student")
+@Table(name = "students")
 @Data
 @Builder
 @AllArgsConstructor
@@ -34,11 +34,22 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+
+    @Column(name = "last_name", nullable = false)
     private String lastName;
+
+    @Column(name = "student_class", nullable = false)
     private String studentClass;
+
+    @Column(name = "is_shared", nullable = false)
     private Boolean isShared;
+
+    @Column(name = "balance", nullable = false)
     private BigDecimal balance;
+
+    @Column(name = "password", nullable = false)
     private String password;
 
 
