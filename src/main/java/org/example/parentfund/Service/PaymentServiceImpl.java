@@ -63,28 +63,22 @@ public class PaymentServiceImpl implements PaymentService {
         double dynamicPaymentRate = 0.05;
         BigDecimal adjustedPaymentAmount = paymentAmount.multiply(BigDecimal.valueOf(1 + dynamicPaymentRate));
 
-        // Update the student's balance
         student.setBalance(student.getBalance().add(adjustedPaymentAmount));
         studentRepository.save(student);
 
-        // Ensure the student has at least one parent
         List<Parent> parents = student.getParents();
         if (parents == null || parents.isEmpty()) {
             throw new IllegalStateException("Student must have at least one parent associated.");
         }
 
-        // Distribute the payment across the parents
         BigDecimal sharePerParent = adjustedPaymentAmount.divide(BigDecimal.valueOf(parents.size()), RoundingMode.HALF_UP);
         for (Parent parent1 : parents) {
-            // Correct enum usage: Set the status of the parent (example: ACTIVE)
-            parent1.setParentStatus(ParentStatus.ACTIVE);  // Correct usage of ParentStatus enum
+            parent1.setParentStatus(ParentStatus.ACTIVE);
 
-            // Update parent balance
             parent1.setBalance(parent1.getBalance().subtract(sharePerParent));
             parentRepository.save(parent1);
         }
 
-        // Create and save the payment record
         Payment newPayment = Payment.builder()
                 .originalAmount(paymentAmount)
                 .adjustedAmount(adjustedPaymentAmount)
@@ -92,11 +86,11 @@ public class PaymentServiceImpl implements PaymentService {
                 .paymentStatus(PaymentStatus.APPROVED)
                 .paymentDescription(String.format("Processed payment for student %s %s", student.getFirstName(), student.getLastName()))
                 .feeRate(dynamicPaymentRate)
-                .parent(parent) // Assuming you want to assign the first parent here, you could change this if needed
+                .parent(parent)
                 .student(student)
                 .build();
 
-        paymentRepository.save(newPayment); // Save payment record
+        paymentRepository.save(newPayment);
     }
 
 
