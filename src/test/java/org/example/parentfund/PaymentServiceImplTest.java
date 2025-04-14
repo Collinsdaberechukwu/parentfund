@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.example.parentfund.DTOS.PaymentDTO;
 import org.example.parentfund.Entity.Parent;
+import org.example.parentfund.Entity.Payment;
 import org.example.parentfund.Entity.Student;
 import org.example.parentfund.Exception.ParentNotFoundException;
 import org.example.parentfund.Exception.StudentNotFoundException;
@@ -65,7 +66,6 @@ public class PaymentServiceImplTest {
 
     @Test
     void testProcessPaymentForSharedChild() {
-        // Arrange
         PaymentDTO paymentDTO = new PaymentDTO(1L, 1L, BigDecimal.valueOf(200)); // Parent A paying for shared student
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
         when(parentRepository.findById(1L)).thenReturn(Optional.of(parentA));
@@ -74,15 +74,13 @@ public class PaymentServiceImplTest {
         when(authentication.getAuthorities()).thenReturn(Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN")));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Act
+
         paymentService.processPayment(paymentDTO);
 
-        // Assert
         verify(studentRepository, times(1)).save(student);
         verify(parentRepository, times(2)).save(any(Parent.class)); // Both Parent A and Parent B should be updated
         verify(paymentRepository, times(1)).save(any(Payment.class)); // Payment record saved
 
-        // Assert that the parent's balance is updated correctly
         assertEquals(BigDecimal.valueOf(900), parentA.getBalance());
         assertEquals(BigDecimal.valueOf(900), parentB.getBalance());
 
@@ -91,7 +89,7 @@ public class PaymentServiceImplTest {
 
     @Test
     void testUnauthorizedAccess() {
-        // Arrange
+
         PaymentDTO paymentDTO = new PaymentDTO(1L, 1L, BigDecimal.valueOf(200));
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
         when(parentRepository.findById(1L)).thenReturn(Optional.of(parentA));
@@ -100,7 +98,6 @@ public class PaymentServiceImplTest {
         when(authentication.getAuthorities()).thenReturn(Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Act & Assert
         UnauthorizedAccessException exception = assertThrows(UnauthorizedAccessException.class, () -> {
             paymentService.processPayment(paymentDTO);
         });
@@ -110,7 +107,6 @@ public class PaymentServiceImplTest {
 
     @Test
     void testParentNotFound() {
-        // Arrange
         PaymentDTO paymentDTO = new PaymentDTO(1L, 1L, BigDecimal.valueOf(200));
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
         when(parentRepository.findById(1L)).thenReturn(Optional.empty());  // Parent not found
@@ -119,7 +115,6 @@ public class PaymentServiceImplTest {
         when(authentication.getAuthorities()).thenReturn(Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Act & Assert
         ParentNotFoundException exception = assertThrows(ParentNotFoundException.class, () -> {
             paymentService.processPayment(paymentDTO);
         });
@@ -129,7 +124,6 @@ public class PaymentServiceImplTest {
 
     @Test
     void testStudentNotFound() {
-        // Arrange
         PaymentDTO paymentDTO = new PaymentDTO(1L, 1L, BigDecimal.valueOf(200));
         when(studentRepository.findById(1L)).thenReturn(Optional.empty());  // Student not found
 
@@ -137,7 +131,6 @@ public class PaymentServiceImplTest {
         when(authentication.getAuthorities()).thenReturn(Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN")));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Act & Assert
         StudentNotFoundException exception = assertThrows(StudentNotFoundException.class, () -> {
             paymentService.processPayment(paymentDTO);
         });
